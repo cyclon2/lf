@@ -940,7 +940,7 @@ Example test_eqblist3 :
   eqblist [1;2;3] [1;2;4] = false.
 Proof. reflexivity. Qed.
 
-Theorem eql_id : forall n:nat,
+Lemma eql_id : forall n:nat,
   ( n =? n ) = true.
 Proof. intros n. induction n as [| n' IHn'].
 - reflexivity. 
@@ -948,6 +948,12 @@ Proof. intros n. induction n as [| n' IHn'].
 
 Theorem leb_id : forall n:nat,
   ( n <=? n ) = true.
+Proof. intros n. induction n as [| n' IHn'].
+- reflexivity. 
+- simpl. rewrite -> IHn'. reflexivity.  Qed.
+
+Lemma leb_plus_1 : forall n:nat,
+  ( n <=? n + 1 ) = true.
 Proof. intros n. induction n as [| n' IHn'].
 - reflexivity. 
 - simpl. rewrite -> IHn'. reflexivity.  Qed.
@@ -1001,7 +1007,12 @@ Proof.
 Theorem remove_does_not_increase_count: forall (s : bag),
   (count 0 (remove_one 0 s)) <=? (count 0 s) = true.
 Proof.
-Admitted.
+intro s. induction s as [| n s' IHs'].
+* simpl. reflexivity.
+* simpl. destruct n.
+** simpl. rewrite -> leb_plus_1. reflexivity.
+** simpl. rewrite -> IHs'. reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars, standard, optional (bag_count_sum)  
@@ -1113,17 +1124,20 @@ Definition option_elim (d : nat) (o : natoption) : nat :=
     Using the same idea, fix the [hd] function from earlier so we don't
     have to pass a default element for the [nil] case.  *)
 
-Definition hd_error (l : natlist) : natoption
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Definition hd_error (l : natlist) : natoption:=
+match l with
+| nil => None
+| hd :: tl => Some hd
+end.
 
 Example test_hd_error1 : hd_error [] = None.
- (* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 
 Example test_hd_error2 : hd_error [1] = Some 1.
- (* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 
 Example test_hd_error3 : hd_error [5;6] = Some 5.
- (* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 (** [] *)
 
 (** **** Exercise: 1 star, standard, optional (option_elim_hd)  
@@ -1133,7 +1147,10 @@ Example test_hd_error3 : hd_error [5;6] = Some 5.
 Theorem option_elim_hd : forall (l:natlist) (default:nat),
   hd default l = option_elim default (hd_error l).
 Proof.
-  (* FILL IN HERE *) Admitted.
+intros l d. induction l as [| n l' IHl'].
+* simpl. reflexivity.
+* simpl. reflexivity.
+Qed.
 (** [] *)
 
 End NatList.
@@ -1165,9 +1182,16 @@ Definition eqb_id (x1 x2 : id) :=
   end.
 
 (** **** Exercise: 1 star, standard (eqb_id_refl)  *)
+Lemma eqb_x  : forall x, (x =? x) = true.
+Proof. intros x. induction x.
+* simpl. reflexivity.
+* simpl. rewrite-> IHx. reflexivity.
+Qed.
+
 Theorem eqb_id_refl : forall x, true = eqb_id x x.
 Proof.
-  (* FILL IN HERE *) Admitted.
+intros x. destruct x. simpl. rewrite->eqb_x. reflexivity.
+Qed.
 (** [] *)
 
 (** Now we define the type of partial maps: *)
@@ -1213,7 +1237,8 @@ Theorem update_eq :
   forall (d : partial_map) (x : id) (v: nat),
     find x (update d x v) = Some v.
 Proof.
- (* FILL IN HERE *) Admitted.
+intros d x v. simpl. rewrite <- eqb_id_refl. reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 1 star, standard (update_neq)  *)
@@ -1221,7 +1246,8 @@ Theorem update_neq :
   forall (d : partial_map) (x y : id) (o: nat),
     eqb_id x y = false -> find x (update d y o) = find x d.
 Proof.
- (* FILL IN HERE *) Admitted.
+intros d x y o H. simpl. rewrite -> H. reflexivity.
+Qed.
 (** [] *)
 End PartialMap.
 
