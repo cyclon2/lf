@@ -74,7 +74,7 @@ Theorem silly_ex :
      oddb 3 = true ->
      evenb 4 = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros eq1 eq2. apply eq2. Qed.
 (** [] *)
 
 (** To use the [apply] tactic, the (conclusion of the) fact
@@ -101,13 +101,20 @@ Proof.
 
     (_Hint_: You can use [apply] with previously defined lemmas, not
     just hypotheses in the context.  Remember that [Search] is
-    your friend.) *)
+    your friend.)
+*)
+
+Lemma rev_exercise0 : forall (l l' : list nat),
+     l = rev l' ->
+     rev l = rev (rev l').
+Proof.
+intros l l' H. symmetry. rewrite -> H. reflexivity. Qed.
 
 Theorem rev_exercise1 : forall (l l' : list nat),
      l = rev l' ->
      l' = rev l.
 Proof.
-  (* FILL IN HERE *) Admitted.
+intros l l' H. symmetry. rewrite -> H. apply rev_involutive. Qed.
 (** [] *)
 
 (** **** Exercise: 1 star, standard, optional (apply_rewrite)  
@@ -176,7 +183,7 @@ Example trans_eq_exercise : forall (n m o p : nat),
      (n + p) = m ->
      (n + p) = (minustwo o).
 Proof.
-  (* FILL IN HERE *) Admitted.
+intros n m o p eq1 eq2. rewrite <- eq1. apply eq2.  Qed.
 (** [] *)
 
 (* ################################################################# *)
@@ -273,7 +280,9 @@ Example injection_ex3 : forall (X : Type) (x y z : X) (l j : list X),
   y :: l = x :: j ->
   x = y.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros X x y z l j eq1 eq2.
+  injection eq1. injection eq2. intros H1 H2 H3 H4.  rewrite H2.
+  reflexivity. Qed.
 (** [] *)
 
 (** So much for injectivity of constructors.  What about disjointness?
@@ -345,7 +354,7 @@ Example discriminate_ex3 :
     x :: y :: l = [] ->
     x = z.
 Proof.
-  (* FILL IN HERE *) Admitted.
+intros X x y z l j contra. discriminate contra. Qed.
 (** [] *)
 
 (** The injectivity of constructors allows us to reason that
@@ -415,12 +424,22 @@ Proof.
     Practice using "in" variants in this proof.  (Hint: use
     [plus_n_Sm].) *)
 
+Lemma plus_zero : forall n,
+  S n = 0 -> n = 0.
+Proof.
+intros n H. induction n as [| n'].
+* reflexivity.
+* rewrite <- H. rewrite -> IHn'. discriminate. 
+
 Theorem plus_n_n_injective : forall n m,
      n + n = m + m ->
      n = m.
 Proof.
-  intros n. induction n as [| n'].
-  (* FILL IN HERE *) Admitted.
+  intros n m H. induction n as [| n'].
+* simpl in H. induction m as [| m'].
+** reflexivity.
+**
+Qed.
 (** [] *)
 
 (* ################################################################# *)
